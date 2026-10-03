@@ -1,38 +1,52 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, SessionContextUsage } from 'claude-code'
 
-import type { ContextFill } from '../types'
+import type { ContextBreakdown, ContextFill, ContextSource } from '../types'
+import { colorFor, legendRows, readOptions, short, sourceSegments, usageSegments } from './bar'
+import type { BarOptions, Segment } from './bar'
 
-const CELLS = 12
 const fill = atom({ plugin: 'context-bar', key: 'fill' } as const, null)
 
-const toFill = (c: SessionContextUsage): ContextFill => {
+const toFill = (c: SessionContextUsage, breakdown: ContextBreakdown | null): ContextFill => {
   const tokens = c.tokens ?? null
   const percent = c.percent ?? (tokens === null ? null : Math.round((tokens / c.window) * 100))
 
-  return { tokens, window: c.window, percent }
+  return { tokens, window: c.window, percent, breakdown }
 }
 
-const isSame = (a: ContextFill | null, b: ContextFill) =>
-  a !== null && a.tokens === b.tokens && a.window === b.window && a.percent === b.percent
+// "summary" estimates locally; "full" would send a token-count request per tool.
+const loadBreakdown = async ($: EngineInterface): Promise<ContextBreakdown | null> => {
+  const b = (await $.session.usage({ breakdown: 'summary' })).context.breakdown
 
-const short = (n: number) =>
-  n >= 1e6 ? `${+(n / 1e6).toFixed(1)}M` : `${Math.round(n / 1000)}k`
+  if (b === undefined) {
+    return null
+  }
 
-const colorFor = (pct: number) => (pct >= 80 ? 'error' : pct >= 60 ? 'warning' : 'success')
+  const sources = b.categories
+    .filter(c => !c.isDeferred && c.kind !== 'deferred')
+    .map(c => ({ name: c.name, tokens: c.tokens, color: c.color, kind: c.kind as ContextSource['kind'] }))
 
-// Writes only on change so the hint line doesn't redraw every tick.
-const save = async ($: EngineInterface, c: SessionContextUsage) => {
-  const next = toFill(c)
+  return { total: b.totalTokens, window: b.rawMaxTokens, percent: b.percentage, sources }
+}
 
-  if (!isSame(await read($, fill), next)) {
+// Writes only on change so the footer doesn't redraw every tick.
+const save = async ($: EngineInterface, c: SessionContextUsage, opts: BarOptions) => {
+  const prev = await read($, fill)
+  // The breakdown is recounted only when the fill moved.
+  const kept = prev?.tokens === (c.tokens ?? null) ? prev.breakdown : null
+  const breakdown = opts.style === 'sources' ? (kept ?? (await loadBreakdown($))) : null
+  const next = toFill(c, breakdown)
+
+  if (JSON.stringify(prev) !== JSON.stringify(next)) {
     await update($, fill, () => next)
   }
 }
 
-export const register: Register = on => {
+export const register: Register = (on, options) => {
+  const opts = readOptions(options)
+
   on('session.start', async ($, e, next) => {
-    const sync = async () => save($, (await $.session.usage()).context)
+    const sync = async () => save($, (await $.session.usage()).context, opts)
     await sync()
     // Catches /clear, /compact and model switches, which raise no measure.
     $.clock.every(3000, () => void sync())
@@ -42,7 +56,7 @@ export const register: Register = on => {
 
   on('session.measure', async ($, e, next) => {
     if (e.changed.includes('context')) {
-      await save($, e.context)
+      await save($, e.context, opts)
     }
 
     return next(e)
@@ -58,24 +72,52 @@ export const register: Register = on => {
     }
 
     const { Box, Text } = $.ui.resolve(e)
-    const pct = ctx.percent
-    const filled = pct === null ? 0 : Math.min(CELLS, Math.round((pct / 100) * CELLS))
+    const b = opts.style === 'sources' ? (ctx.breakdown ?? null) : null
+    const pct = b === null ? ctx.percent : b.percent
     const color = pct === null ? 'inactive' : colorFor(pct)
-    const used = ctx.tokens === null ? '--' : short(ctx.tokens)
+    const used = b === null ? (ctx.tokens === null ? '--' : short(ctx.tokens)) : short(b.total)
+    const segments = b === null ? usageSegments(pct, opts) : sourceSegments(b, opts)
+    const rows = b === null ? [] : legendRows(b, opts)
+    const nameWidth = Math.max(0, ...rows.map(r => r.name.length))
+
+    const paint = (s: Pick<Segment, 'color' | 'isDim'>, text: string) =>
+      s.color === null ? <Text dimColor={s.isDim}>{text}</Text> : <Text color={s.color} dimColor={s.isDim}>{text}</Text>
 
     return (
       <Box gap={2}>
-        <Box>
-          <Text color={color}>{'█'.repeat(filled)}</Text>
-          <Text dimColor>{'░'.repeat(CELLS - filled)}</Text>
+        <Box key="bar">
+          {segments.map(s => paint(s, s.glyph.repeat(s.cells)))}
           <Text color={color} bold>
             {' '}
-            {pct === null ? '--' : `${pct}%`}
+            {pct === null ? '--' : `${Math.round(pct)}%`}
           </Text>
           <Text dimColor>
             {' '}
-            {used}/{short(ctx.window)}
+            {used}/{short(b === null ? ctx.window : b.window)}
           </Text>
+          {rows.length > 0 && (
+            // Hover legend: drawn over the rows above the bar.
+            <Box
+              position="absolute"
+              bottom={1}
+              right={0}
+              display="none"
+              hover={{ display: 'flex' }}
+              flexDirection="column"
+              borderStyle="round"
+              borderDimColor
+            >
+              {rows.map(r => (
+                <Box>
+                  {paint(r, r.glyph.repeat(2))}
+                  <Text>
+                    {' '}
+                    {r.name.padEnd(nameWidth)} {short(r.tokens).padStart(6)}
+                  </Text>
+                </Box>
+              ))}
+            </Box>
+          )}
         </Box>
         {beneath}
       </Box>

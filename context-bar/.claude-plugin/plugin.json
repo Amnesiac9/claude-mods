@@ -1,9 +1,39 @@
 {
   "name": "context-bar",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": { "name": "Amnesiac9" },
   "license": "MIT",
   "repository": "https://github.com/Amnesiac9/claude-mods",
   "description": "Colored context-window fill bar in the prompt footer",
-  "types": "./types/index.d.ts"
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "style": {
+      "type": "string",
+      "title": "Bar coloring",
+      "description": "usage: one color by how full the window is. sources: a segment per context source, like /context (hover for a legend).",
+      "default": "usage",
+      "options": ["usage", "sources"]
+    },
+    "glyphs": {
+      "type": "string",
+      "title": "Bar glyphs",
+      "description": "blocks █░, bars ▰▱, squares ■□, line ━─",
+      "default": "blocks",
+      "options": ["blocks", "bars", "squares", "line"]
+    },
+    "width": {
+      "type": "number",
+      "title": "Bar width",
+      "description": "Cells in the bar (6-40)",
+      "default": 12,
+      "min": 6,
+      "max": 40
+    },
+    "textures": {
+      "type": "boolean",
+      "title": "Color-blind textures",
+      "description": "Give each source its own pattern (sources), or change the pattern at 60% and 80% (usage)",
+      "default": false
+    }
+  }
 }

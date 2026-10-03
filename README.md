@@ -9,6 +9,17 @@ Claude Code mods for personal use. Needs a recent Claude Code build (written on 
 | `context-bar` | Colored context-window fill bar in the prompt footer: green, yellow from 60%, red from 80%. |
 | `account-badge` | Signed-in org as a short abbreviation (`CSC`, `PERS` for personal accounts), red when signed out. |
 
+### context-bar options
+
+Set them in `/config` (each is a row under the plugin's name).
+
+| Option | Values | Default |
+| --- | --- | --- |
+| Bar coloring | `usage`: one color by how full the window is. `sources`: a segment per context source in `/context`'s colors, the autocompact buffer at the right end; hover the bar for a legend (fullscreen mode). | `usage` |
+| Bar glyphs | `blocks` █░, `bars` ▰▱, `squares` ■□, `line` ━─ | `blocks` |
+| Bar width | 6 to 40 cells | 12 |
+| Color-blind textures | `sources`: each source gets its own pattern (█ ▓ ▚ ▄ ▀ ...). `usage`: the pattern changes at 60% (▓) and 80% (▚). | off |
+
 ## Install
 
 ```
