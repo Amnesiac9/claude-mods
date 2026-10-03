@@ -12,6 +12,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: README and marketplace list every mod
+        run: sh scripts/check-readme.sh
+
       - name: No Claude co-authors
         run: |
           if git log --format=%B | grep -iqE '^co-authored-by:.*(claude|anthropic)'; then

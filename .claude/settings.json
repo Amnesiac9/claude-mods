@@ -1,3 +1,15 @@
 {
-  "attribution": { "commit": "", "pr": "", "sessionUrl": false }
+  "attribution": { "commit": "", "pr": "", "sessionUrl": false },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/scripts/check-readme.sh\" --stop-hook"
+          }
+        ]
+      }
+    ]
+  }
 }
