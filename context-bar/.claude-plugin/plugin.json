@@ -1,0 +1,7 @@
+{
+  "name": "context-bar",
+  "version": "0.1.0",
+  "author": { "name": "Amnesiac9" },
+  "description": "Colored context-window fill bar in the prompt footer",
+  "types": "./types/index.d.ts"
+}

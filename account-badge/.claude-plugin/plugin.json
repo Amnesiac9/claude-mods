@@ -1,0 +1,7 @@
+{
+  "name": "account-badge",
+  "version": "0.1.0",
+  "author": { "name": "Amnesiac9" },
+  "description": "Signed-in org abbreviation in the prompt footer",
+  "types": "./types/index.d.ts"
+}

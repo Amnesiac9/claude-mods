@@ -1,0 +1,17 @@
+{
+  "name": "amnesiac9",
+  "description": "Claude Code footer mods: context fill bar and account badge",
+  "owner": { "name": "Amnesiac9", "url": "https://github.com/Amnesiac9" },
+  "plugins": [
+    {
+      "name": "context-bar",
+      "source": "./context-bar",
+      "description": "Colored context-window fill bar in the prompt footer"
+    },
+    {
+      "name": "account-badge",
+      "source": "./account-badge",
+      "description": "Signed-in org abbreviation in the prompt footer"
+    }
+  ]
+}
