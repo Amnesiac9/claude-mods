@@ -2,6 +2,8 @@
   "name": "account-badge",
   "version": "0.1.0",
   "author": { "name": "Amnesiac9" },
+  "license": "MIT",
+  "repository": "https://github.com/Amnesiac9/claude-mods",
   "description": "Signed-in org abbreviation in the prompt footer",
   "types": "./types/index.d.ts"
 }

@@ -1,6 +1,6 @@
 # claude-mods
 
-Claude Code mods (function-hook plugins). Needs a recent Claude Code build (written on 2.1.287).
+Claude Code mods for personal use. Needs a recent Claude Code build (written on 2.1.287).
 
 | Mod | What it does |
 | --- | --- |
@@ -26,3 +26,20 @@ Load the folders live instead of installing, in `~/.claude/settings.json` (`;` o
 ```
 
 Saves hot-reload. Check with `claude plugin validate <mod>` and `claude plugin test <mod>`.
+
+## Contributing
+
+Enable the repo's git hooks once per clone:
+
+```
+git config core.hooksPath .githooks
+```
+
+- `pre-commit` fails when a mod folder is missing from the Mods table above or from `.claude-plugin/marketplace.json` (or either lists one that's gone). Claude Code sessions in this repo get the same check as a Stop hook.
+- `commit-msg` strips Claude co-author trailers. CI rejects any that get through.
+
+New mod: add its folder, a row in the Mods table, and an entry in `marketplace.json`.
+
+## License
+
+[MIT](LICENSE)
