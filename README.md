@@ -2,6 +2,8 @@
 
 Claude Code mods for personal use. Needs a recent Claude Code build (written on 2.1.287).
 
+![context-bar and account-badge in the Claude Code prompt footer](images/context-bar+org-badge.png)
+
 | Mod | What it does |
 | --- | --- |
 | `context-bar` | Colored context-window fill bar in the prompt footer: green, yellow from 60%, red from 80%. |
