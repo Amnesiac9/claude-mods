@@ -1,0 +1,20 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: No Claude co-authors
+        run: |
+          if git log --format=%B | grep -iqE '^co-authored-by:.*(claude|anthropic)'; then
+            echo "A commit credits Claude as co-author. Enable the repo hooks (git config core.hooksPath .githooks) and reword it."
+            exit 1
+          fi

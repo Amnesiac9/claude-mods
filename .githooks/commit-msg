@@ -1,0 +1,7 @@
+#!/bin/sh
+# Strips Claude co-author trailers and "Generated with Claude Code" lines.
+msg="$1"
+grep -viE '^co-authored-by:.*(claude|anthropic)|generated with \[?claude code' "$msg" > "$msg.tmp"
+# Drop the blank lines the removed trailer leaves at the end.
+awk 'NF { for (; n > 0; n--) print ""; print; next } { n++ }' "$msg.tmp" > "$msg"
+rm -f "$msg.tmp"
