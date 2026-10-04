@@ -2,7 +2,9 @@
 
 Claude Code mods for personal use. Needs a recent Claude Code build (written on 2.1.287).
 
-![context-bar and account-badge in the Claude Code prompt footer](images/context-bar+org-badge.png)
+![context-bar cycling through its styles beside account-badge in the Claude Code prompt footer](images/context-bar-styles.gif)
+
+<sub>context-bar styles: `usage` with blocks, squares, line, and line + textures; `sources` with bars, and blocks + textures.</sub>
 
 | Mod | What it does |
 | --- | --- |
