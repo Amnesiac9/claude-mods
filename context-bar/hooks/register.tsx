@@ -6,6 +6,8 @@ import { colorFor, legendRows, readOptions, short, sourceSegments, usageSegments
 import type { BarOptions, Segment } from './bar'
 
 const fill = atom({ plugin: 'context-bar', key: 'fill' } as const, null)
+// The prompt box's three rows; the notice row above it paints over anything taller.
+const LEGEND_ROWS = 3
 
 const toFill = (c: SessionContextUsage, breakdown: ContextBreakdown | null): ContextFill => {
   const tokens = c.tokens ?? null
@@ -78,7 +80,11 @@ export const register: Register = (on, options) => {
     const used = b === null ? (ctx.tokens === null ? '--' : short(ctx.tokens)) : short(b.total)
     const segments = b === null ? usageSegments(pct, opts) : sourceSegments(b, opts)
     const rows = b === null ? [] : legendRows(b, opts)
-    const nameWidth = Math.max(0, ...rows.map(r => r.name.length))
+    // Column-major grid of LEGEND_ROWS rows.
+    const columns = Array.from({ length: Math.ceil(rows.length / LEGEND_ROWS) }, (_, c) =>
+      rows.slice(c * LEGEND_ROWS, (c + 1) * LEGEND_ROWS),
+    )
+    const widths = columns.map(col => Math.max(...col.map(r => r.name.length)))
 
     const paint = (s: Pick<Segment, 'color' | 'isDim'>, text: string) =>
       s.color === null ? <Text dimColor={s.isDim}>{text}</Text> : <Text color={s.color} dimColor={s.isDim}>{text}</Text>
@@ -96,24 +102,27 @@ export const register: Register = (on, options) => {
             {used}/{short(b === null ? ctx.window : b.window)}
           </Text>
           {rows.length > 0 && (
-            // Hover legend: drawn over the rows above the bar.
-            <Box
-              position="absolute"
-              bottom={1}
-              right={0}
-              display="none"
-              hover={{ display: 'flex' }}
-              flexDirection="column"
-              borderStyle="round"
-              borderDimColor
-            >
-              {rows.map(r => (
+            // Hover legend over the prompt box, the only rows above the footer nothing paints over.
+            <Box position="absolute" bottom={1} right={0} display="none" hover={{ display: 'flex' }} flexDirection="column">
+              {Array.from({ length: LEGEND_ROWS }, (_, i) => (
                 <Box>
-                  {paint(r, r.glyph.repeat(2))}
-                  <Text>
-                    {' '}
-                    {r.name.padEnd(nameWidth)} {short(r.tokens).padStart(6)}
-                  </Text>
+                  {columns.map((col, c) => {
+                    const r = col[i]
+
+                    // Blank cells still overwrite the border line beneath them.
+                    return r === undefined ? (
+                      <Text>{' '.repeat((widths[c] ?? 0) + 12)}</Text>
+                    ) : (
+                      <Box>
+                        <Text> </Text>
+                        {paint(r, r.glyph.repeat(2))}
+                        <Text>
+                          {' '}
+                          {r.name.padEnd(widths[c] ?? 0)} {short(r.tokens).padStart(6)}{' '}
+                        </Text>
+                      </Box>
+                    )
+                  })}
                 </Box>
               ))}
             </Box>

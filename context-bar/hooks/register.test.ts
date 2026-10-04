@@ -70,6 +70,8 @@ test('sources: a segment per source, buffer at the end, hover legend', { options
     expect((await glyphs(ui)).slice(0, 4)).toEqual(['██:promptBorder', '████:permission', '░░░:dim', '▒▒▒:inactive'])
     expect(await ui.find({ type: 'Text', text: /Messages\s+70k/ })).toBeDefined()
     expect(await ui.find({ type: 'Text', text: /Deferred tools/ })).toBeUndefined()
+    // 4 sources in 3 rows: the second column's last two cells are blank.
+    expect(await ui.findAll({ type: 'Text', text: /^ {2,}$/ })).toHaveLength(2)
     await ui.unmount()
   }
 })
