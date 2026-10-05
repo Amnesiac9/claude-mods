@@ -1,0 +1,57 @@
+{
+  "name": "usage-limits",
+  "version": "0.1.0",
+  "author": { "name": "Amnesiac9" },
+  "license": "MIT",
+  "repository": "https://github.com/Amnesiac9/claude-mods",
+  "description": "5-hour and weekly rate-limit bars in the prompt footer",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "fiveHour": {
+      "type": "boolean",
+      "title": "Show 5-hour limit",
+      "description": "The session (5-hour) rate-limit window",
+      "default": true
+    },
+    "weekly": {
+      "type": "boolean",
+      "title": "Show weekly limit",
+      "description": "The 7-day rate-limit window",
+      "default": true
+    },
+    "position": {
+      "type": "string",
+      "title": "Position",
+      "description": "start: left of the other footer items (context bar, modes, badge). end: after them.",
+      "default": "start",
+      "options": ["start", "end"]
+    },
+    "glyphs": {
+      "type": "string",
+      "title": "Bar glyphs",
+      "description": "blocks █░, bars ▰▱, squares ■□, line ━─, none: percent only",
+      "default": "blocks",
+      "options": ["blocks", "bars", "squares", "line", "none"]
+    },
+    "width": {
+      "type": "number",
+      "title": "Bar width",
+      "description": "Cells in each bar (4-20)",
+      "default": 8,
+      "min": 4,
+      "max": 20
+    },
+    "textures": {
+      "type": "boolean",
+      "title": "Color-blind textures",
+      "description": "Change the pattern at 60% (▓) and 80% (▚)",
+      "default": false
+    },
+    "resets": {
+      "type": "boolean",
+      "title": "Show reset time",
+      "description": "Time until each window resets",
+      "default": true
+    }
+  }
+}
